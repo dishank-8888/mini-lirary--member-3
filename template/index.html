@@ -9,3 +9,14 @@
     <h2>Transactions</h2>
     <div id="transactionList"></div>
 </div>
+<script>
+async function borrowBook() {
+    await fetch('/borrow', {method: 'POST'});
+    fetchTransactions();
+}
+
+async function returnBook() {
+    await fetch('/return', {method: 'POST'});
+    fetchTransactions();
+}
+</script>
