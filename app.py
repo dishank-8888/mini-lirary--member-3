@@ -57,4 +57,34 @@ def user_borrowed_books():
                     book['cover_url'] = ''
                 borrowed.append(book)
     return jsonify(borrowed)
+from threading import Lock
 
+transaction_lock = Lock()
+
+# ... inside manage_transactions POST block ...
+with transaction_lock:
+    # Check book availability and process the transaction here
+    is_borrowed = any(
+        tx for tx in transactions
+        if tx['book_id'] == book_id and tx['action']=='borrow' and
+        not any(
+            t2 for t2 in transactions
+            if t2['book_id']==book_id and t2['action']=='return' and t2['date'] > tx['date']
+        )
+    )
+    if action == 'borrow':
+        if is_borrowed:
+            return jsonify({'status':'error', 'message':'Book already borrowed'}), 400
+    elif action == 'return':
+        if not is_borrowed:
+            return jsonify({'status':'error', 'message':'Book is not borrowed'}), 400
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    transactions.append({
+        'user_id': user_id,
+        'user_name': users[user_id]['name'],
+        'book_id': book_id,
+        'book_title': books[book_id]['title'],
+        'action': action,
+        'date': date
+    })
+return jsonify({'status': 'success'}), 201
