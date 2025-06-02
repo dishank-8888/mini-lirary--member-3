@@ -12,6 +12,20 @@ def manage_transactions():
         book_id = data['book_id']
         if user_id not in users or book_id not in books:
             return jsonify({'status':'error', 'message':'Invalid user or book'}), 400
+        is_borrowed = any(
+            tx for tx in transactions
+            if tx['book_id'] == book_id and tx['action']=='borrow' and
+            not any(
+                t2 for t2 in transactions
+                if t2['book_id']==book_id and t2['action']=='return' and t2['date'] > tx['date']
+            )
+        )
+        if action == 'borrow':
+            if is_borrowed:
+                return jsonify({'status':'error', 'message':'Book already borrowed'}), 400
+        elif action == 'return':
+            if not is_borrowed:
+                return jsonify({'status':'error', 'message':'Book is not borrowed'}), 400
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         transactions.append({
             'user_id': user_id,
@@ -22,4 +36,3 @@ def manage_transactions():
             'date': date
         })
         return jsonify({'status': 'success'}), 201
-
