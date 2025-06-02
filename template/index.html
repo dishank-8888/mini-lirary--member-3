@@ -11,13 +11,22 @@
 </div>
 <script>
 async function borrowBook() {
-    await fetch('/borrow', {method: 'POST'});
-    fetchTransactions();
+    try {
+        const response = await fetch('/borrow', {method: 'POST'});
+        if (!response.ok) throw new Error('Failed to borrow book');
+        fetchTransactions();
+    } catch (error) {
+        alert(error.message);
+    }
 }
-
 async function returnBook() {
-    await fetch('/return', {method: 'POST'});
-    fetchTransactions();
+    try {
+        const response = await fetch('/return', {method: 'POST'});
+        if (!response.ok) throw new Error('Failed to return book');
+        fetchTransactions();
+    } catch (error) {
+        alert(error.message);
+    }
 }
 async function fetchTransactions() {
     try {
