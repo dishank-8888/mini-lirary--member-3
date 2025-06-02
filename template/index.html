@@ -19,4 +19,11 @@ async function returnBook() {
     await fetch('/return', {method: 'POST'});
     fetchTransactions();
 }
+async function fetchTransactions() {
+    const res = await fetch('/transactions');
+    const txs = await res.json();
+    const transactionList = document.getElementById('transactionList');
+    transactionList.innerHTML = txs.map(tx => `<p>${tx.action} - ${tx.date}</p>`).join('');
+}
+
 </script>
