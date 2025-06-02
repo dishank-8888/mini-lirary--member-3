@@ -36,3 +36,25 @@ def manage_transactions():
             'date': date
         })
         return jsonify({'status': 'success'}), 201
+    # --- User Borrowed Books ---
+@app.route('/user_borrowed_books')
+def user_borrowed_books():
+    user_id = request.args.get('user_id')
+    borrowed = []
+    for tx in transactions:
+        if tx['user_id'] == user_id and tx['action'] == 'borrow':
+            # Check if not returned
+            book_id = tx['book_id']
+            returned = any(
+                t2 for t2 in transactions
+                if t2['book_id']==book_id and t2['user_id']==user_id and t2['action']=='return' and t2['date'] > tx['date']
+            )
+            if not returned:
+                book = books[book_id].copy()
+                if book['cover']:
+                    book['cover_url'] = '/static/covers/' + book['cover']
+                else:
+                    book['cover_url'] = ''
+                borrowed.append(book)
+    return jsonify(borrowed)
+
