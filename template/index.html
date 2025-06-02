@@ -20,10 +20,14 @@ async function returnBook() {
     fetchTransactions();
 }
 async function fetchTransactions() {
-    const res = await fetch('/transactions');
-    const txs = await res.json();
-    const transactionList = document.getElementById('transactionList');
-    transactionList.innerHTML = txs.map(tx => `<p>${tx.action} - ${tx.date}</p>`).join('');
+    try {
+        const res = await fetch('/transactions');
+        if (!res.ok) throw new Error('Failed to fetch transactions');
+        const txs = await res.json();
+        const transactionList = document.getElementById('transactionList');
+        transactionList.innerHTML = txs.map(tx => <p>${tx.action} - ${tx.date}</p>).join('');
+    } catch (error) {
+        document.getElementById('transactionList').innerHTML = <p style="color: red;">${error.message}</p>;
+    }
 }
-
 </script>
